@@ -14,6 +14,8 @@ In our case, the scan confirmed the address was 0x27, so we use that in our prog
 
 <img src="https://github.com/user-attachments/assets/5ea4a16a-bee1-4be5-af6b-39ebc27471b0" height="20%" width="50%" alt="Disk Sanitization Steps"/>
 
+<img src="https://github.com/user-attachments/assets/eef8ddb6-d16d-4f6c-bfbf-e2ca13bfe99e" height="20%" width="50%" alt="Disk Sanitization Steps"/>
+
 ---------------------------------
 
 Just like the previous .c file, we begin our current I2C_LCD.c file with the same I2C initialization. However, before diving into full LCD configuration, we want to confirm that our I2C communication is working correctly.
@@ -56,15 +58,21 @@ The first function is void lcd_send_command(uint8_t cmd). This function mirrors 
 
 ![image](https://github.com/user-attachments/assets/08d4f707-966c-4b4d-8dc2-e73e092baab5)
 
+-------------
+
 The second user-defined function is void lcd_send_char(char c). This function also builds a command using bitmasking and sends it via pcf_write_byte(). The only difference from lcd_send_command() is that we OR the data with LCD_RS (Register Select) to indicate we are sending data, not a command. This tells the LCD to interpret the byte as a printable character rather than an instruction.
 
 ![image](https://github.com/user-attachments/assets/46aa9bf4-43ed-4d72-845b-4679a89cebde)
+
+--------------
 
 Since sending characters one by one isn’t efficient when working with full strings, we write another helper function:
 void lcd_send_string(char *character).
 This function accepts a pointer to a character array (a C string), iterates through it, and prints each valid ASCII character to the LCD. It skips non-printable characters (like tabs or backspaces) by checking their ASCII value range. It also tracks how many characters have been sent and moves to the second line after 16 characters by calling lcd_send_command(0xC0) (the command to move the cursor to the beginning of the second row). This way, even if the user types more than 16 characters, they’re not lost — they wrap to the second line cleanly.
 
 ![image](https://github.com/user-attachments/assets/8a834980-e45d-4247-b4e4-fb32726c7cba)
+
+-----------------------------
 
 Now that all of this is implemented, our main() becomes very clean and readable. Inside the main loop, we:
 
@@ -90,14 +98,18 @@ Next, when we typed something and hit Enter, the LCD was showing strange ghost c
 To fix this, we used: c[strcspn(c, "\n")] = '\0';
 This line finds the position of the first newline character in the string (if present), and replaces it with a null terminator ('\0'). This trims the string cleanly, preventing ghost characters from being printed on the display.
 
-Now that everything is set up, we can connect to CoolTerm and type anything — it appears cleanly on the LCD!
+--------------------------------
+
+Now that everything is set up, we can connect to CoolTerm and type anything and it will appear cleanly on the LCD!
 
 As a final note: scrolling (like the effect you see on digital billboards where text slides left or right) is not yet implemented, but it’s something I plan to add in the future. It will require sending shifting commands repeatedly while maintaining the cursor or memory address offset.
 
+<img src="https://github.com/user-attachments/assets/5cc19a3e-ad06-4843-811b-214e5fb3aa94" height="20%" width="70%" alt="Disk Sanitization Steps"/>
 
+<img src="https://github.com/user-attachments/assets/6d94d24b-92a2-4afd-aead-b9fc61b3e0f9" height="20%" width="100%" alt="Disk Sanitization Steps"/>
 
-![image](https://github.com/user-attachments/assets/5cc19a3e-ad06-4843-811b-214e5fb3aa94)
+-----------------------------
 
-![image](https://github.com/user-attachments/assets/f5aa03e1-5f59-4ba8-bb8a-c786e6685dfc)
+<img src="https://github.com/user-attachments/assets/f5aa03e1-5f59-4ba8-bb8a-c786e6685dfc" height="20%" width="70%" alt="Disk Sanitization Steps"/>
 
-
+<img src="https://github.com/user-attachments/assets/e24cf6b9-fa0e-4a4c-8ee9-356b39938f37" height="20%" width="100%" alt="Disk Sanitization Steps"/>
